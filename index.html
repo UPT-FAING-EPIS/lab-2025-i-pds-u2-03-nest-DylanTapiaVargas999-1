@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Selector de Vista</title>
+
+  <!-- Estilos generales -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #1f1f1f;
+      padding: 1rem;
+    }
+    button {
+      margin: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #2e7d32;
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    iframe {
+      width: 100%;
+      height: 90vh;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Selecciona una vista</h1>
+    <button onclick="cargarVista('atm')">Atm</button>
+    <button onclick="cargarVista('payment')">Payment</button>
+  </header>
+
+  <iframe id="visor" src="customer-app/index.html"></iframe>
+
+  <script>
+    function cargarVista(ruta) {
+      document.getElementById('visor').src = `${ruta}/index.html`;
+    }
+  </script>
+</body>
+</html>
