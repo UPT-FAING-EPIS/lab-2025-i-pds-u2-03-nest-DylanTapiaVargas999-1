@@ -3,6 +3,10 @@ import { WithdrawCommand } from './withdraw-command';
 import { DepositCommand } from './deposit-command';
 import { ATM } from './atm';
 
+/**
+ * Prueba unitaria para verificar que al ejecutar un retiro,
+ * el saldo de la cuenta se actualiza correctamente.
+ */
 describe('GivenAccountAndWithdraw_ThenExecute_ReturnsCorrectAmount', () => {
   let account: Account;
 
@@ -19,6 +23,10 @@ describe('GivenAccountAndWithdraw_ThenExecute_ReturnsCorrectAmount', () => {
   });
 });
 
+/**
+ * Prueba unitaria para verificar que al ejecutar un depósito,
+ * el saldo de la cuenta se actualiza correctamente.
+ */
 describe('GivenAccountAndDeposit_ThenExecute_ReturnsCorrectAmount', () => {
   let account: Account;
 
