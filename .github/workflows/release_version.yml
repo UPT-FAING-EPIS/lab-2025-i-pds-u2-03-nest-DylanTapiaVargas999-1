@@ -51,7 +51,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: "payment-v${{ env.VERSION }}"
-          name: "payment Release v${{ env.VERSION }}"
+          name: "Payment Release v${{ env.VERSION }}"
           files: payment/*.tgz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -86,7 +86,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: "atm-v${{ env.atm }}"
-          name: "Customer App Release v${{ env.atm }}"
+          name: "Atm Release v${{ env.atm }}"
           files: atm/*.tgz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
