@@ -1,0 +1,118 @@
+name: Build, Test, Analyze and Publish NPM Packages
+#nuget
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  payment-package:
+    name: payment - Build, Test, Analyze & Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://npm.pkg.github.com/'
+
+      - name: Install dependencies
+        run: cd payment && npm ci
+
+      - name: Run unit tests and generate coverage
+        run: cd payment && npm run test -- --coverage
+
+      - name: Upload test coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: payment-coverage
+          path: payment/coverage
+
+      - name: SonarCloud Scan (payment)
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: payment
+          args: >
+            -Dsonar.organization=dylan-tapia
+            -Dsonar.projectKey=dylan-tapia_lap3-1-u2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build package
+        run: |
+          cd payment
+          npm version patch --no-git-tag-version
+          npm pack
+
+      - name: Configure npm for GitHub Packages
+        run: echo "//npm.pkg.github.com/:_authToken=${GH_TOKEN}" > ~/.npmrc
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Publish package to GitHub Packages
+        run: |
+          cd payment
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  atm-package:
+    name: Customer App - Build, Test, Analyze & Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://npm.pkg.github.com/'
+
+      - name: Install dependencies
+        run: cd atm && npm ci
+
+      - name: Run unit tests and generate coverage
+        run: cd atm && npm run test -- --coverage
+
+      - name: Upload test coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: atm-coverage
+          path: atm/coverage
+
+      - name: SonarCloud Scan (atm)
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: atm
+          args: >
+            -Dsonar.organization=dylan-tapia
+            -Dsonar.projectKey=dylan-tapia_lap3-2-u2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build package
+        run: |
+          cd atm
+          npm version patch --no-git-tag-version
+          npm pack
+
+      - name: Configure npm for GitHub Packages
+        run: echo "//npm.pkg.github.com/:_authToken=${GH_TOKEN}" > ~/.npmrc
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Publish package to GitHub Packages
+        run: |
+          cd atm
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GH_TOKEN }}
