@@ -1,0 +1,92 @@
+name: Crear y Publicar Releases Automáticos
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release-both-packages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # --- payment package ---
+      - name: Install dependencies (payment)
+        run: npm ci
+        working-directory: payment
+
+      - name: Build and pack (payment)
+        run: |
+          cd payment
+          npm version patch --no-git-tag-version
+          npm pack
+        id: pack_payment
+
+      - name: Get payment version
+        id: version_payment
+        run: |
+          VERSION=$(node -p "require('./payment/package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "::set-output name=tag::v$VERSION"
+
+      - name: Create git tag (payment)
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag -f "payment-v${{ env.VERSION }}"
+          git push origin "payment-v${{ env.VERSION }}" --force
+
+      - name: Create GitHub Release (payment)
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "payment-v${{ env.VERSION }}"
+          name: "payment Release v${{ env.VERSION }}"
+          files: payment/*.tgz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- Customer App package ---
+      - name: Install dependencies (atm)
+        run: npm ci
+        working-directory: atm
+
+      - name: Build and pack (atm)
+        run: |
+          cd atm
+          npm version patch --no-git-tag-version
+          npm pack
+        id: pack_customerapp
+
+      - name: Get atm version
+        id: version_customerapp
+        run: |
+          VERSION=$(node -p "require('./atm/package.json').version")
+          echo "CUSTOMER_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "::set-output name=tag::v$VERSION"
+
+      - name: Create git tag (atm)
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag -f "customerapp-v${{ env.CUSTOMER_VERSION }}"
+          git push origin "customerapp-v${{ env.CUSTOMER_VERSION }}" --force
+
+      - name: Create GitHub Release (atm)
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "customerapp-v${{ env.CUSTOMER_VERSION }}"
+          name: "Customer App Release v${{ env.CUSTOMER_VERSION }}"
+          files: atm/*.tgz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
