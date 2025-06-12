@@ -56,7 +56,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # --- Customer App package ---
+      # --- atm package ---
       - name: Install dependencies (atm)
         run: npm ci
         working-directory: atm
@@ -66,27 +66,27 @@ jobs:
           cd atm
           npm version patch --no-git-tag-version
           npm pack
-        id: pack_customerapp
+        id: pack_atm
 
       - name: Get atm version
-        id: version_customerapp
+        id: version_atm
         run: |
           VERSION=$(node -p "require('./atm/package.json').version")
-          echo "CUSTOMER_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "atm=$VERSION" >> $GITHUB_ENV
           echo "::set-output name=tag::v$VERSION"
 
       - name: Create git tag (atm)
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git tag -f "customerapp-v${{ env.CUSTOMER_VERSION }}"
-          git push origin "customerapp-v${{ env.CUSTOMER_VERSION }}" --force
+          git tag -f "atm-v${{ env.atm }}"
+          git push origin "atm-v${{ env.atm }}" --force
 
       - name: Create GitHub Release (atm)
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: "customerapp-v${{ env.CUSTOMER_VERSION }}"
-          name: "Customer App Release v${{ env.CUSTOMER_VERSION }}"
+          tag_name: "atm-v${{ env.atm }}"
+          name: "Customer App Release v${{ env.atm }}"
           files: atm/*.tgz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
